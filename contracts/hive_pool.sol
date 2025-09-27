@@ -39,6 +39,8 @@ contract HivePool is Freezable {
     uint256 constant MAX_DEPOSIT = 100 ether;
     uint256 constant MAX_PARTICIPANTS = 100;
 
+    event HiveCreated(uint256 hiveId);
+
     enum RewardPeriod {
         Weekly,
         Monthly
@@ -52,7 +54,6 @@ contract HivePool is Freezable {
 
     struct HiveStruct {
         uint256 id;
-        // uint256 duration;
         address creator;
         uint256 limitParticipants;
         uint256 startSubscription;
@@ -125,6 +126,8 @@ contract HivePool is Freezable {
             applitedFee: 0,
             rewardPaid: 0
         });
+
+        emit HiveCreated(lastHiveId);
 
         return lastHiveId;
     }
