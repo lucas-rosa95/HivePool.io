@@ -32,10 +32,12 @@ contract HivePool is Freezable {
     uint256 private lastHiveId = 100000;
 
     error InvalidDeposit();
+    error InvalidLimitParticipants();
     error InvalidSubscriptionPeriod();
 
     uint256 constant MIN_DEPOSIT = 0.01 ether;
     uint256 constant MAX_DEPOSIT = 100 ether;
+    uint256 constant MAX_PARTICIPANTS = 100;
 
     enum RewardPeriod {
         Weekly,
@@ -52,7 +54,7 @@ contract HivePool is Freezable {
         uint256 id;
         // uint256 duration;
         address creator;
-        // uint256 limitParticipants;
+        uint256 limitParticipants;
         uint256 startSubscription;
         uint256 endSubscription;
         uint256 entryAmount;
@@ -96,7 +98,8 @@ contract HivePool is Freezable {
     function createHive(
         uint256 _startSubscription,
         uint256 _endSubscription,
-        RewardPeriod _rewardPeriod
+        RewardPeriod _rewardPeriod,
+        uint256 _limitParticipants
     ) external payable returns (uint256) {
         if (msg.value < MIN_DEPOSIT || msg.value > MAX_DEPOSIT)
             revert InvalidDeposit();
@@ -106,6 +109,9 @@ contract HivePool is Freezable {
             _endSubscription < _startSubscription + 7 days
         ) revert InvalidSubscriptionPeriod();
 
+        if (_limitParticipants > MAX_PARTICIPANTS)
+            revert InvalidLimitParticipants();
+
         hives[++lastHiveId] = HiveStruct({
             id: lastHiveId,
             creator: msg.sender,
@@ -113,6 +119,7 @@ contract HivePool is Freezable {
             entryAmount: msg.value,
             status: HiveStatus.Created,
             rewardPeriod: _rewardPeriod,
+            limitParticipants: _limitParticipants,
             startSubscription: _startSubscription,
             endSubscription: _endSubscription,
             applitedFee: 0,
